@@ -13,6 +13,10 @@ def plot_price_evolution(data, normalize=False):
         st.warning("Nenhum dado disponível para exibir")
         return
     
+    # Detectar o tema atual
+    theme = st.session_state.get('theme', 'Escuro')
+    plotly_template = "plotly_white" if theme == "Claro" else "plotly_dark"
+    
     fig = None
     
     if normalize:
@@ -24,20 +28,25 @@ def plot_price_evolution(data, normalize=False):
         fig = px.line(
             normalized_data, 
             title="Evolução Normalizada de Preços (Base 100)",
-            labels={"value": "Preço Normalizado", "variable": "Ação", "date": "Data"}
+            labels={"value": "Preço Normalizado", "variable": "Ação", "date": "Data"},
+            template=plotly_template
         )
     else:
         fig = px.line(
             data,
             title="Evolução de Preços de Fechamento",
-            labels={"value": "Preço (R$)", "variable": "Ação", "date": "Data"}
+            labels={"value": "Preço (R$)", "variable": "Ação", "date": "Data"},
+            template=plotly_template
         )
     
+    # Cor de fundo transparente
     fig.update_layout(
         xaxis_title="Data",
         yaxis_title="Preço (R$)",
         legend_title="Ações",
-        hovermode="x unified"
+        hovermode="x unified",
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
     )
     
     st.plotly_chart(fig, use_container_width=True)
@@ -47,6 +56,10 @@ def plot_returns_heatmap(data):
     if data is None or data.empty:
         st.warning("Nenhum dado disponível para exibir")
         return
+    
+    # Detectar o tema atual
+    theme = st.session_state.get('theme', 'Escuro')
+    plotly_template = "plotly_white" if theme == "Claro" else "plotly_dark"
     
     # Calcular retornos diários
     returns = data.pct_change().dropna()
@@ -58,7 +71,14 @@ def plot_returns_heatmap(data):
         corr_matrix,
         text_auto=True,
         color_continuous_scale='RdBu_r',
-        title="Correlação entre Retornos Diários"
+        title="Correlação entre Retornos Diários",
+        template=plotly_template
+    )
+    
+    # Cor de fundo transparente
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
     )
     
     st.plotly_chart(fig, use_container_width=True)
@@ -69,14 +89,25 @@ def plot_performance_chart(data):
         st.warning("Nenhum dado disponível para exibir")
         return
     
+    # Detectar o tema atual
+    theme = st.session_state.get('theme', 'Escuro')
+    plotly_template = "plotly_white" if theme == "Claro" else "plotly_dark"
+    
     # Calcular retorno percentual cumulativo
     returns = (1 + data.pct_change().fillna(0)).cumprod() - 1
     
     fig = px.line(
         returns * 100,
         title="Retorno Acumulado (%)",
-        labels={"value": "Retorno (%)", "variable": "Ação", "date": "Data"}
+        labels={"value": "Retorno (%)", "variable": "Ação", "date": "Data"},
+        template=plotly_template
     )
     
-    fig.update_layout(hovermode="x unified")
+    # Cor de fundo transparente
+    fig.update_layout(
+        hovermode="x unified",
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    
     st.plotly_chart(fig, use_container_width=True)
